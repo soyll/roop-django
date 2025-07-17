@@ -1,0 +1,8 @@
+Django==5.0
+psycopg2-binary==2.9.9
+celery==5.4.0
+redis==5.0.1
+django-environ==0.11.2
+djangorestframework==3.15.1
+Pillow==11.0.0
+gunicorn==23.0.0

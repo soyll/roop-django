@@ -1,0 +1,52 @@
+services:
+  django:
+    env_file:
+    - .env
+    build:
+      context: .
+      dockerfile: django.Dockerfile
+    container_name: django
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn ar_tobolsk.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+
+  celery:
+    env_file:
+    - .env
+    build:
+      context: .
+      dockerfile: celery.Dockerfile
+    container_name: celery
+    command: celery -A ar_tobolsk worker -l info -E
+    volumes:
+      - .:/app
+    depends_on:
+      - django
+      - redis
+      - postgres
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ar_tobolsk
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: ar_tobolsk
+    ports:
+      - "5432:5432"
+
+volumes:
+  media_volume:
