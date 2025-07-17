@@ -12,8 +12,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir -r /app/roop/requirements.txt
 
 COPY . .
+
+RUN pip install --no-cache-dir -r /app/roop/requirements.txt
 
 CMD ["celery", "-A", "ar_tobolsk", "worker", "-l", "info", "-E"]
