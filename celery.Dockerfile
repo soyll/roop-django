@@ -1,5 +1,7 @@
 FROM python:3.11-bullseye
 
+ARG INSTALL_ROOP=false
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
@@ -13,8 +15,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN git clone https://github.com/s0md3v/roop.git /app/roop
-
-RUN pip install --no-cache-dir -r /app/roop/requirements.txt
+RUN if [ "$INSTALL_ROOP" = "true" ]; then \
+      pip install --no-cache-dir -r /app/roop/requirements.txt ; \
+    else \
+      echo "Skipping roop install"; \
+    fi
 
 CMD ["celery", "-A", "ar_tobolsk", "worker", "-l", "info", "-E"]
