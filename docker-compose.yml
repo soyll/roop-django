@@ -23,8 +23,6 @@ services:
     build:
       context: .
       dockerfile: celery.Dockerfile
-      args:
-        INSTALL_ROOP: "false"
     container_name: celery
     command: celery -A ar_tobolsk worker -l info -E
     volumes:
