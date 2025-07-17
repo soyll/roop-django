@@ -36,12 +36,16 @@ class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
 
     def get_user_photo(self, obj):
         request = self.context.get('request')
-        if obj.user_photo and hasattr(obj.user_photo, 'url'):
+        if request and obj.user_photo and hasattr(obj.user_photo, 'url'):
             return request.build_absolute_uri(obj.user_photo.url)
+        if obj.user_photo and hasattr(obj.user_photo, 'url'):
+            return obj.user_photo.url
         return None
 
     def get_result_photo(self, obj):
         request = self.context.get('request')
-        if obj.result_photo and hasattr(obj.result_photo, 'url'):
+        if request and obj.result_photo and hasattr(obj.result_photo, 'url'):
             return request.build_absolute_uri(obj.result_photo.url)
+        if obj.result_photo and hasattr(obj.result_photo, 'url'):
+            return obj.result_photo.url
         return None
