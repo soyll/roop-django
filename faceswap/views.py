@@ -22,7 +22,7 @@ class FaceSwapTaskStatusView(APIView):
         try:
             task = FaceSwapTask.objects.get(pk=pk)
         except FaceSwapTask.DoesNotExist:
-            return Response({"detail": "Задача не найдена"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = FaceSwapTaskStatusSerializer(task)
         return Response(serializer.data)

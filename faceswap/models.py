@@ -3,6 +3,7 @@ from django.db import models
 
 class Review(models.Model):
     session_id = models.CharField(max_length=100, null=True, blank=True)
+    task = models.OneToOneField('FaceSwapTask', on_delete=models.CASCADE, related_name='review')  
     text = models.TextField()
     rating = models.PositiveSmallIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
