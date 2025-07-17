@@ -18,18 +18,11 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
         process_face_swap_task.delay(str(task.id))
 
 class FaceSwapTaskStatusView(APIView):
-    def get(self, _, pk):
+    def get(self, request, pk):
         try:
             task = FaceSwapTask.objects.get(pk=pk)
         except FaceSwapTask.DoesNotExist:
             return Response({"detail": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = FaceSwapTaskStatusSerializer(task)
+        serializer = FaceSwapTaskStatusSerializer(task, context={'request': request})
         return Response(serializer.data)
-
-class FaceSwapTaskHistoryView(generics.ListAPIView):
-    serializer_class = FaceSwapTaskStatusSerializer
-
-    def get_queryset(self):
-        session_id = self.kwargs.get('session_id')
-        return FaceSwapTask.objects.filter(session_id=session_id).order_by('-created_at')
