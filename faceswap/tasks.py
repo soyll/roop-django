@@ -16,7 +16,11 @@ def process_face_swap_task(task_id):
         outdir = os.path.join('media', 'faceswap_results', str(task.id))
         os.makedirs(outdir, exist_ok=True)
 
-        outputs = run_roop(source, template, outdir)
+        outdir = os.path.join('media', 'faceswap_results')
+        os.makedirs(outdir, exist_ok=True)
+        outfile = os.path.join(outdir, f"{task.id}.png")
+
+        outputs = run_roop(source, template, outfile)
         if not outputs:
             raise RuntimeError("No output from roop")
 
