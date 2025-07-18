@@ -1,7 +1,5 @@
 FROM python:3.11-bullseye
 
-ARG INSTALL_ROOP=false
-
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
