@@ -1,6 +1,6 @@
 import os
 from celery import shared_task
-from faceswap.utils import run_roop
+from faceswap.utils import run_roop, run_upscale
 from .models import FaceSwapTask
 
 @shared_task
@@ -20,6 +20,8 @@ def process_face_swap_task(task_id):
 
         if not os.path.exists(outfile):
             raise RuntimeError(f"Roop не создал файл: {outfile}")
+        
+        run_upscale(outfile, outfile)
 
         with open(outfile, 'rb') as f:
             task.result_photo.save(os.path.basename(outfile), f, save=True)
