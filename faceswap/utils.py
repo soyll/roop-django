@@ -2,7 +2,6 @@ import subprocess
 import os
 import logging
 import sys
-from super_image import PanModel, ImageLoader
 from PIL import Image
 
 logging.basicConfig(
@@ -12,7 +11,6 @@ logging.basicConfig(
 )
 
 ROOP_PATH = "/app/roop/run.py"
-UPSCALE_MODEL = PanModel.from_pretrained('eugenesiow/pan', scale=2)
 
 def run_roop(source_path: str, target_path: str, output_path: str):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -36,9 +34,8 @@ def run_roop(source_path: str, target_path: str, output_path: str):
             raise RuntimeError(f"[ROOP] Exit with error code {proc.returncode}")
         
 def run_upscale(input_path: str, output_path: str):
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     image = Image.open(input_path)
-    inputs = ImageLoader.load_image(image)
-    preds = UPSCALE_MODEL(inputs)
-    ImageLoader.save_image(preds, output_path)
+    new_size = (image.width * 2, image.height * 2)
+    upscaled = image.resize(new_size, Image.LANCZOS)
+    upscaled.save(output_path)
     logging.info(f"[UPSCALE] Enhanced image saved to {output_path}")
