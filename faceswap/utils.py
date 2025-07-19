@@ -12,6 +12,7 @@ logging.basicConfig(
 )
 
 ROOP_PATH = "/app/roop/run.py"
+UPSCALE_MODEL = PanModel.from_pretrained('eugenesiow/pan', scale=2)
 
 def run_roop(source_path: str, target_path: str, output_path: str):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -39,6 +40,6 @@ def run_upscale(input_path: str, output_path: str):
     image = Image.open(input_path)
     model = PanModel.from_pretrained('eugenesiow/pan', scale=2)
     inputs = ImageLoader.load_image(image)
-    preds = model(inputs)
+    preds = UPSCALE_MODEL(inputs)
     ImageLoader.save_image(preds, output_path)
     logging.info(f"[UPSCALE] Enhanced image saved to {output_path}")
