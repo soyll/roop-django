@@ -2,7 +2,7 @@ import subprocess
 import os
 import logging
 import sys
-from super_image import EdsrModel, ImageLoader
+from super_image import PanModel, ImageLoader
 from PIL import Image
 
 logging.basicConfig(
@@ -37,7 +37,7 @@ def run_roop(source_path: str, target_path: str, output_path: str):
 def run_upscale(input_path: str, output_path: str):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     image = Image.open(input_path)
-    model = EdsrModel.from_pretrained('eugenesiow/edsr-base', scale=2)
+    model = PanModel.from_pretrained('eugenesiow/pan', scale=2)
     inputs = ImageLoader.load_image(image)
     preds = model(inputs)
     ImageLoader.save_image(preds, output_path)
