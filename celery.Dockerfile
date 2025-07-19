@@ -13,6 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN pip install --no-cache-dir -r /app/roop/requirements.txt
+RUN pip install --no-cache-dir -r /app/roop/requirements-headless.txt
 
 CMD ["celery", "-A", "ar_tobolsk", "worker", "-l", "info", "-E"]
