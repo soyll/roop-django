@@ -20,7 +20,7 @@ def process_face_swap_task(task_id):
         if not faceswap_result:
             raise RuntimeError("No output from roop")
         
-        upscaled_result = run_upscale(source, outdir)
+        upscaled_result = run_upscale(faceswap_result, outdir)
 
         with open(upscaled_result, 'rb') as f:
             task.result_photo.save(os.path.basename(upscaled_result), f, save=True)

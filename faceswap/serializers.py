@@ -15,3 +15,9 @@ class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = FaceSwapTask
         fields = ['id', 'status', 'result_photo', 'error_message']
+
+    def get_result_photo(self, obj):
+        request = self.context.get('request')
+        if obj.result_photo and hasattr(obj.result_photo, 'url'):
+            return request.build_absolute_uri(obj.result_photo.url)
+        return None
