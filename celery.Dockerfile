@@ -13,8 +13,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY /roop/requirements.txt /app/roop/requirements.txt
-RUN pip install --no-cache-dir -r /app/roop/requirements.txt
+COPY roop/requirements.txt roop/requirements.txt
+RUN pip install --no-cache-dir -r roop/requirements.txt
 
 COPY . .
 
