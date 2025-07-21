@@ -1,7 +1,7 @@
 import os
 from celery import shared_task
 
-from faceswap.utils import run_roop
+from faceswap.utils import run_faceswap, run_upscale
 from .models import FaceSwapTask
 
 @shared_task
@@ -16,7 +16,7 @@ def process_face_swap_task(task_id):
         outdir = os.path.join('media', 'faceswap_results', str(task.id))
         os.makedirs(outdir, exist_ok=True)
 
-        outputs = run_roop(source, template, outdir)
+        outputs = run_faceswap(source, template, outdir)
         if not outputs:
             raise RuntimeError("No output from roop")
 
