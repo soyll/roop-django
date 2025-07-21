@@ -31,12 +31,13 @@ def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
         if proc.returncode != 0:
             raise RuntimeError(f"[ROOP] [ERROR] Code: {proc.returncode}")
 
-    outputs = list(Path(output_path).glob("*"))
+    outputs = [p for p in Path(output_path).iterdir() if p.is_file()]
     if not outputs:
-        raise RuntimeError("[ROOP] Folder is empty")
-    if len(outputs) > 1:
-        logging.warning(f"[ROOP] Return file: {outputs[0]}")
-    return str(outputs[0])
+        raise RuntimeError("[UPSCALE] Нет файлов в выходной папке")
+    for f in outputs:
+        if f.name.lower().endswith((".jpg", ".png")):
+            return str(f)
+    raise RuntimeError(f"[UPSCALE] В папке нет итогового изображения: {output_path}")
 
 def run_upscale(input_image: str, output_dir: str) -> str:
     os.makedirs(output_dir, exist_ok=True)
@@ -59,9 +60,12 @@ def run_upscale(input_image: str, output_dir: str) -> str:
         if proc.returncode != 0:
             raise RuntimeError(f"[UPSCALE] [ERROR] Code: {proc.returncode}")
 
-    outputs = list(Path(output_dir).glob("*"))
+    outputs = [p for p in Path(output_dir).iterdir() if p.is_file()]
     if not outputs:
-        raise RuntimeError("[UPSCALE] Folder is empty")
-    if len(outputs) > 1:
-        logging.warning(f"[UPSCALE] Return file: {outputs[0]}")
-    return str(outputs[0])
+        raise RuntimeError("[UPSCALE] Нет файлов в выходной папке")
+
+    for f in outputs:
+        if f.name.lower().endswith((".jpg", ".png")):
+            return str(f)
+
+    raise RuntimeError(f"[UPSCALE] В папке нет итогового изображения: {output_dir}")
