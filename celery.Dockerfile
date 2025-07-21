@@ -13,8 +13,9 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
+COPY /roop/requirements.txt /app/roop/requirements.txt
 RUN pip install --no-cache-dir -r /app/roop/requirements.txt
+
+COPY . .
 
 CMD ["celery", "-A", "ar_tobolsk", "worker", "-l", "info", "-E"]
