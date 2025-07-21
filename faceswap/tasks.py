@@ -16,13 +16,14 @@ def process_face_swap_task(task_id):
         outdir = os.path.join('media', 'faceswap_results', str(task.id))
         os.makedirs(outdir, exist_ok=True)
 
-        outputs = run_faceswap(source, template, outdir)
-        if not outputs:
+        faceswap_result = run_faceswap(source, template, outdir)
+        if not faceswap_result:
             raise RuntimeError("No output from roop")
+        
+        upscaled_result = run_upscale(source, outdir)
 
-        best = outputs[0]
-        with open(best, 'rb') as f:
-            task.result_photo.save(os.path.basename(best), f, save=True)
+        with open(upscaled_result, 'rb') as f:
+            task.result_photo.save(os.path.basename(upscaled_result), f, save=True)
 
         task.status = 'done'
         task.save()
