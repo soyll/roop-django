@@ -60,12 +60,9 @@ def run_upscale(input_image: str, output_dir: str) -> str:
         if proc.returncode != 0:
             raise RuntimeError(f"[UPSCALE] [ERROR] Code: {proc.returncode}")
 
-    outputs = [p for p in Path(output_dir).iterdir() if p.is_file()]
-    if not outputs:
-        raise RuntimeError("[UPSCALE] Нет файлов в выходной папке")
+    for ext in (".jpg", ".png"):
+        file_path = Path(output_dir) / f"hq_final{ext}"
+        if file_path.exists():
+            return str(file_path)
 
-    for f in outputs:
-        if f.name.lower().endswith((".jpg", ".png")):
-            return str(f)
-
-    raise RuntimeError(f"[UPSCALE] В папке нет итогового изображения: {output_dir}")
+    raise RuntimeError(f"[UPSCALE] Image hq_final not found: {output_dir}")
