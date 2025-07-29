@@ -26,15 +26,29 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         base64_data = validated_data.pop('user_photo_base64', None)
         if base64_data:
+            if not isinstance(base64_data, str):
+                raise serializers.ValidationError("Photo must be a base64 string")
+
+            if ';base64,' not in base64_data:
+                raise serializers.ValidationError("Missing base64 header")
+
             try:
-                format, imgstr = base64_data.split(';base64,')
-                ext = imghdr.what(None, h=base64.b64decode(imgstr))
-                if not ext:
-                    raise serializers.ValidationError("Invalid image")
-                file_name = f'{uuid.uuid4()}.{ext}'
-                validated_data['user_photo'] = ContentFile(base64.b64decode(imgstr), name=file_name)
+                _, imgstr = base64_data.split(';base64,')
+            except ValueError:
+                raise serializers.ValidationError("Invalid base64 header format")
+
+            try:
+                decoded_img = base64.b64decode(imgstr)
             except Exception:
-                raise serializers.ValidationError("Invalid base64 format")
+                raise serializers.ValidationError("Image base64 decode error")
+
+            ext = imghdr.what(None, h=decoded_img)
+            if not ext:
+                raise serializers.ValidationError("Could not determine image type")
+
+            file_name = f'{uuid.uuid4()}.{ext}'
+            validated_data['user_photo'] = ContentFile(decoded_img, name=file_name)
+
         return super().create(validated_data)
 
 
