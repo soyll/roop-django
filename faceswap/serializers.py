@@ -43,16 +43,13 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Image base64 decode error")
 
             try:
-                image = Image.open(BytesIO(decoded_img))
-                ext = image.format.lower()
-                if ext not in ['jpeg', 'jpg', 'png', 'webp']:
-                    raise serializers.ValidationError("Unsupported image format")
+                image = Image.open(BytesIO(decoded_img)).convert("RGBA")
                 image_io = BytesIO()
-                image.save(image_io, format=image.format)
-                file_name = f"{uuid.uuid4()}.{ext}"
+                image.save(image_io, format="PNG")
+                file_name = f"{uuid.uuid4()}.png"
                 validated_data['user_photo'] = ContentFile(image_io.getvalue(), name=file_name)
             except Exception as e:
-                raise serializers.ValidationError("Error: ", e)
+                raise serializers.ValidationError(f"Invalid image content: {str(e)}")
 
         return super().create(validated_data)
 
