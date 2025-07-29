@@ -17,15 +17,13 @@ def process_face_swap_task(task_id, user_photo_bytes, template_id):
         user_photo_image = Image.open(BytesIO(user_photo_bytes))
         user_photo_image = user_photo_image.convert('RGB')
 
-        user_photo_path = f'/tmp/{task_id}_user_photo.png'
+        user_photo_path = f'/app/templates/{template_id}.png'
         user_photo_image.save(user_photo_path, format='PNG')
-
-        template_path = f"/app/templates/{template_id}.png"
 
         outdir = os.path.join('media', 'faceswap_results', str(task.id))
         os.makedirs(outdir, exist_ok=True)
 
-        faceswap_result = run_faceswap(user_photo_path, template_path, outdir)
+        faceswap_result = run_faceswap(user_photo_path, user_photo_path, outdir)
         if not faceswap_result:
             raise RuntimeError("No output from roop")
 
