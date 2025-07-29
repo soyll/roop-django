@@ -3,6 +3,7 @@ import os
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser
 from PIL import Image
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -10,8 +11,18 @@ from django.http import FileResponse
 from django.conf import settings
 from django.utils.timezone import now
 from django.core.files.storage import default_storage
+
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+
 from .models import Review, FaceSwapTask
-from .serializers import ReportDownloadSerializer, ReportUploadSerializer, ReviewSerializer, FaceSwapTaskCreateSerializer, FaceSwapTaskStatusSerializer, TemplateReplaceSerializer
+from .serializers import (
+    ReportDownloadSerializer,
+    ReportUploadSerializer,
+    ReviewSerializer,
+    FaceSwapTaskCreateSerializer,
+    FaceSwapTaskStatusSerializer,
+    TemplateReplaceSerializer
+)
 from .tasks import process_face_swap_task
 
 class ReviewListCreateView(generics.ListCreateAPIView):
@@ -26,6 +37,9 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
         task = serializer.save(status='pending')
         process_face_swap_task.delay(str(task.id))
 
+@extend_schema(
+    responses=FaceSwapTaskStatusSerializer
+)
 class FaceSwapTaskStatusView(APIView):
     def get(self, request, pk):
         try:
@@ -36,6 +50,10 @@ class FaceSwapTaskStatusView(APIView):
         serializer = FaceSwapTaskStatusSerializer(task, context={'request': request})
         return Response(serializer.data)
 
+@extend_schema(
+    request=TemplateReplaceSerializer,
+    responses={200: OpenApiResponse(description="Template replaced successfully")},
+)
 class TemplateReplaceView(APIView):
     @method_decorator(csrf_exempt)
     def post(self, request):
@@ -55,6 +73,12 @@ class TemplateReplaceView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=500)
         
+@extend_schema(
+    parameters=[
+        ReportDownloadSerializer().fields['password'],
+    ],
+    responses={200: OpenApiResponse(description="CSV file downloaded")}
+)
 class DownloadReportView(APIView):
     def get(self, request):
         serializer = ReportDownloadSerializer(data=request.query_params)
@@ -84,6 +108,10 @@ class DownloadReportView(APIView):
 
         return FileResponse(open(filepath, 'rb'), filename=filename, as_attachment=True)
 
+@extend_schema(
+    request=ReportUploadSerializer,
+    responses={200: OpenApiResponse(description="CSV file uploaded successfully")},
+)
 class UploadReportView(APIView):
     def post(self, request):
         serializer = ReportUploadSerializer(data=request.data)
