@@ -1,5 +1,6 @@
 import base64
-import imghdr
+from PIL import Image
+from io import BytesIO
 import uuid
 from django.core.files.base import ContentFile
 from rest_framework import serializers
@@ -41,15 +42,19 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
             except Exception:
                 raise serializers.ValidationError("Image base64 decode error")
 
-            ext = imghdr.what(None, h=decoded_img)
-            if not ext:
-                raise serializers.ValidationError("Could not determine image type")
-
-            file_name = f'{uuid.uuid4()}.{ext}'
-            validated_data['user_photo'] = ContentFile(decoded_img, name=file_name)
+            try:
+                image = Image.open(BytesIO(decoded_img))
+                ext = image.format.lower()
+                if ext not in ['jpeg', 'jpg', 'png', 'webp']:
+                    raise serializers.ValidationError("Unsupported image format")
+                image_io = BytesIO()
+                image.save(image_io, format=image.format)
+                file_name = f"{uuid.uuid4()}.{ext}"
+                validated_data['user_photo'] = ContentFile(image_io.getvalue(), name=file_name)
+            except Exception:
+                raise serializers.ValidationError("Invalid image content")
 
         return super().create(validated_data)
-
 
 class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
     class Meta:
