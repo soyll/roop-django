@@ -1,6 +1,15 @@
+import csv
+import os
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from PIL import Image
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.http import FileResponse
+from django.conf import settings
+from django.utils.timezone import now
+from django.core.files.storage import default_storage
 from .models import Review, FaceSwapTask
 from .serializers import ReviewSerializer, FaceSwapTaskCreateSerializer, FaceSwapTaskStatusSerializer
 from .tasks import process_face_swap_task
@@ -22,7 +31,63 @@ class FaceSwapTaskStatusView(APIView):
         try:
             task = FaceSwapTask.objects.get(pk=pk)
         except FaceSwapTask.DoesNotExist:
-            return Response({"detail": "Задача не найдена"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = FaceSwapTaskStatusSerializer(task, context={'request': request})
         return Response(serializer.data)
+
+class TemplateReplaceView(APIView):
+    @method_decorator(csrf_exempt)
+    def post(self, request):
+        template_type = request.POST.get('type')  # 'male' / 'female'
+        image_file = request.FILES.get('image')
+
+        if template_type not in ['male', 'female']:
+            return Response({'error': 'Invalid template type'}, status=400)
+
+        if not image_file:
+            return Response({'error': 'No image provided'}, status=400)
+
+        try:
+            img = Image.open(image_file)
+            path = f'/app/templates/{template_type}.png'
+            img.convert("RGB").save(path, format="PNG")
+            return Response({'success': True})
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+        
+class DownloadReportView(APIView):
+    def get(self, request):
+        password = request.GET.get('password')
+        if password != settings.CSV_PASSWORD:
+            return Response({'error': 'Incorrect password'}, status=403)
+
+        filename = 'faceswap_report.csv'
+        filepath = os.path.join(settings.MEDIA_ROOT, filename)
+
+        with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['ID', 'Session ID', 'Status', 'Result', 'Error', 'Created', 'Updated'])
+            for task in FaceSwapTask.objects.all():
+                writer.writerow([
+                    str(task.id),
+                    task.session_id,
+                    task.status,
+                    task.result_photo.url if task.result_photo else '',
+                    task.error_message,
+                    task.created_at,
+                    task.updated_at,
+                ])
+
+        return FileResponse(open(filepath, 'rb'), filename=filename, as_attachment=True)
+
+class UploadReportView(APIView):
+    def post(self, request):
+        file = request.FILES.get('file')
+        if not file:
+            return Response({'error': 'No file provided'}, status=400)
+
+        filename = f'report_upload_{now().strftime("%Y-%m-%d_%H-%M-%S")}.csv'
+        path = default_storage.save(f'reports/{filename}', file)
+
+        return Response({'success': True, 'path': path})

@@ -102,6 +102,8 @@ WSGI_APPLICATION = 'ar_tobolsk.wsgi.application'
 env = environ.Env()
 environ.Env.read_env()
 
+CSV_PASSWORD = env('CSV_PASSWORD')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
