@@ -12,21 +12,31 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
     user_photo_base64 = serializers.CharField(write_only=True, required=False)
+    user_photo = serializers.ImageField(required=False)
 
     class Meta:
         model = FaceSwapTask
         fields = ['id', 'user_photo', 'user_photo_base64', 'template_id', 'session_id']
 
+    def validate(self, attrs):
+        if not attrs.get('user_photo') and not attrs.get('user_photo_base64'):
+            raise serializers.ValidationError("Either 'user_photo' or 'user_photo_base64' must be provided.")
+        return super().validate(attrs)
+
     def create(self, validated_data):
         base64_data = validated_data.pop('user_photo_base64', None)
         if base64_data:
-            format, imgstr = base64_data.split(';base64,')
-            ext = imghdr.what(None, h=base64.b64decode(imgstr))
-            if not ext:
-                raise serializers.ValidationError("Invalid image")
-            file_name = f'{uuid.uuid4()}.{ext}'
-            validated_data['user_photo'] = ContentFile(base64.b64decode(imgstr), name=file_name)
+            try:
+                format, imgstr = base64_data.split(';base64,')
+                ext = imghdr.what(None, h=base64.b64decode(imgstr))
+                if not ext:
+                    raise serializers.ValidationError("Invalid image")
+                file_name = f'{uuid.uuid4()}.{ext}'
+                validated_data['user_photo'] = ContentFile(base64.b64decode(imgstr), name=file_name)
+            except Exception:
+                raise serializers.ValidationError("Invalid base64 format")
         return super().create(validated_data)
+
 
 class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
     class Meta:
