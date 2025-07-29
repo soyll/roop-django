@@ -51,8 +51,8 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
                 image.save(image_io, format=image.format)
                 file_name = f"{uuid.uuid4()}.{ext}"
                 validated_data['user_photo'] = ContentFile(image_io.getvalue(), name=file_name)
-            except Exception:
-                raise serializers.ValidationError("Invalid image content")
+            except Exception as e:
+                raise serializers.ValidationError("Error: ", e)
 
         return super().create(validated_data)
 
