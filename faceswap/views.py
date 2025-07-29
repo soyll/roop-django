@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils.timezone import now
 from django.core.files.storage import default_storage
 from .models import Review, FaceSwapTask
-from .serializers import ReviewSerializer, FaceSwapTaskCreateSerializer, FaceSwapTaskStatusSerializer
+from .serializers import ReportDownloadSerializer, ReportUploadSerializer, ReviewSerializer, FaceSwapTaskCreateSerializer, FaceSwapTaskStatusSerializer, TemplateReplaceSerializer
 from .tasks import process_face_swap_task
 
 class ReviewListCreateView(generics.ListCreateAPIView):
@@ -39,17 +39,16 @@ class FaceSwapTaskStatusView(APIView):
 class TemplateReplaceView(APIView):
     @method_decorator(csrf_exempt)
     def post(self, request):
-        template_type = request.POST.get('type')  # 'male' / 'female'
-        image_file = request.FILES.get('image')
+        serializer = TemplateReplaceSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
 
-        if template_type not in ['male', 'female']:
-            return Response({'error': 'Invalid template type'}, status=400)
-
-        if not image_file:
-            return Response({'error': 'No image provided'}, status=400)
+        template_type = serializer.validated_data['type']
+        image_file = serializer.validated_data['image']
 
         try:
             img = Image.open(image_file)
+            os.makedirs('/app/templates/', exist_ok=True)
             path = f'/app/templates/{template_type}.png'
             img.convert("RGB").save(path, format="PNG")
             return Response({'success': True})
@@ -58,7 +57,11 @@ class TemplateReplaceView(APIView):
         
 class DownloadReportView(APIView):
     def get(self, request):
-        password = request.GET.get('password')
+        serializer = ReportDownloadSerializer(data=request.query_params)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        password = serializer.validated_data['password']
         if password != settings.CSV_PASSWORD:
             return Response({'error': 'Incorrect password'}, status=403)
 
@@ -83,10 +86,11 @@ class DownloadReportView(APIView):
 
 class UploadReportView(APIView):
     def post(self, request):
-        file = request.FILES.get('file')
-        if not file:
-            return Response({'error': 'No file provided'}, status=400)
+        serializer = ReportUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
 
+        file = serializer.validated_data['file']
         filename = f'report_upload_{now().strftime("%Y-%m-%d_%H-%M-%S")}.csv'
         path = default_storage.save(f'reports/{filename}', file)
 

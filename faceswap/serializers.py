@@ -38,3 +38,13 @@ class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
         if obj.result_photo and hasattr(obj.result_photo, 'url'):
             return request.build_absolute_uri(obj.result_photo.url)
         return None
+    
+class TemplateReplaceSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(choices=['male', 'female'])
+    image = serializers.ImageField()
+    
+class ReportDownloadSerializer(serializers.Serializer):
+    password = serializers.CharField()    
+
+class ReportUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
