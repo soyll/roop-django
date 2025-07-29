@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 
 class Review(models.Model):
-    session_id = models.CharField(max_length=100, null=True, blank=True)
+    session_id = models.CharField(max_length=100, default=0, blank=True)
     task_id = models.OneToOneField('FaceSwapTask', on_delete=models.CASCADE)
     text = models.TextField()
     rating = models.PositiveSmallIntegerField()
