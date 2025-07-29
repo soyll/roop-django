@@ -29,16 +29,15 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
             if not isinstance(base64_data, str):
                 raise serializers.ValidationError("Photo must be a base64 string")
 
-            if ';base64,' not in base64_data:
-                raise serializers.ValidationError("Missing base64 header")
+            if ';base64,' in base64_data:
+                _, imgstr = base64_data.split(';base64,', 1)
+            else:
+                imgstr = base64_data
+
+            imgstr = imgstr.strip().replace('\n', '').replace('\r', '').replace(' ', '')
 
             try:
-                _, imgstr = base64_data.split(';base64,')
-            except ValueError:
-                raise serializers.ValidationError("Invalid base64 header format")
-
-            try:
-                decoded_img = base64.b64decode(imgstr)
+                decoded_img = base64.b64decode(imgstr + '=' * (-len(imgstr) % 4))
             except Exception:
                 raise serializers.ValidationError("Image base64 decode error")
 
