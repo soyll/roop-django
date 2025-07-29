@@ -34,7 +34,11 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         task = serializer.save(status='pending')
-        process_face_swap_task.delay(str(task.id))
+        user_photo_file = task.user_photo.open('rb')
+        user_photo_bytes = user_photo_file.read()
+        user_photo_file.close()
+
+        process_face_swap_task.delay(str(task.id), user_photo_bytes, task.template_id)
 
 
 class FaceSwapTaskStatusView(APIView):
