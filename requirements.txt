@@ -8,4 +8,3 @@ Pillow==11.0.0
 gunicorn==23.0.0
 dlib
 imgaug
-drf-spectacular
