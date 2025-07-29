@@ -43,12 +43,18 @@ class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
     
 class TemplateReplaceSerializer(serializers.Serializer):
     type = serializers.ChoiceField(choices=['male', 'female'])
-    @extend_schema_field(OpenApiTypes.BINARY)
     image = serializers.ImageField()
+
+    @extend_schema_field(OpenApiTypes.BINARY)
+    def get_image(self):
+        return self.initial_data.get('image')
     
 class ReportDownloadSerializer(serializers.Serializer):
     password = serializers.CharField()    
 
 class ReportUploadSerializer(serializers.Serializer):
-    @extend_schema_field(OpenApiTypes.BINARY)
     file = serializers.FileField()
+    
+    @extend_schema_field(OpenApiTypes.BINARY)
+    def get_file(self):
+        return self.initial_data.get('file')
