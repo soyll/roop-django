@@ -3,7 +3,6 @@ import os
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser
 from PIL import Image
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -11,9 +10,6 @@ from django.http import FileResponse
 from django.conf import settings
 from django.utils.timezone import now
 from django.core.files.storage import default_storage
-
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from drf_spectacular.types import OpenApiTypes
 
 from .models import Review, FaceSwapTask
 from .serializers import (
@@ -26,9 +22,11 @@ from .serializers import (
 )
 from .tasks import process_face_swap_task
 
+
 class ReviewListCreateView(generics.ListCreateAPIView):
     queryset = Review.objects.all().order_by('-created_at')
     serializer_class = ReviewSerializer
+
 
 class FaceSwapTaskCreateView(generics.CreateAPIView):
     queryset = FaceSwapTask.objects.all()
@@ -38,9 +36,7 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
         task = serializer.save(status='pending')
         process_face_swap_task.delay(str(task.id))
 
-@extend_schema(
-    responses=FaceSwapTaskStatusSerializer
-)
+
 class FaceSwapTaskStatusView(APIView):
     def get(self, request, pk):
         try:
@@ -51,15 +47,14 @@ class FaceSwapTaskStatusView(APIView):
         serializer = FaceSwapTaskStatusSerializer(task, context={'request': request})
         return Response(serializer.data)
 
-@extend_schema(
-    request=TemplateReplaceSerializer,
-)
+
 class TemplateReplaceView(APIView):
-    @method_decorator(csrf_exempt)
+    serializer_class = TemplateReplaceSerializer
+
     def post(self, request):
-        serializer = TemplateReplaceSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         template_type = serializer.validated_data['type']
         image_file = serializer.validated_data['image']
@@ -71,28 +66,20 @@ class TemplateReplaceView(APIView):
             img.convert("RGB").save(path, format="PNG")
             return Response({'success': True})
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
-        
-@extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name='password',
-            type=OpenApiTypes.STR,
-            location=OpenApiParameter.QUERY,
-            required=True,
-            description='Password to authorize CSV download'
-        ),
-    ],
-)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class DownloadReportView(APIView):
+    serializer_class = ReportDownloadSerializer
+
     def get(self, request):
-        serializer = ReportDownloadSerializer(data=request.query_params)
+        serializer = self.serializer_class(data=request.query_params)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         password = serializer.validated_data['password']
         if password != settings.CSV_PASSWORD:
-            return Response({'error': 'Incorrect password'}, status=403)
+            return Response({'error': 'Incorrect password'}, status=status.HTTP_403_FORBIDDEN)
 
         filename = 'faceswap_report.csv'
         filepath = os.path.join(settings.MEDIA_ROOT, filename)
@@ -113,14 +100,14 @@ class DownloadReportView(APIView):
 
         return FileResponse(open(filepath, 'rb'), filename=filename, as_attachment=True)
 
-@extend_schema(
-    request=ReportUploadSerializer,
-)
+
 class UploadReportView(APIView):
+    serializer_class = ReportUploadSerializer
+
     def post(self, request):
-        serializer = ReportUploadSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         file = serializer.validated_data['file']
         filename = f'report_upload_{now().strftime("%Y-%m-%d_%H-%M-%S")}.csv'

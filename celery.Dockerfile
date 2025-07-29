@@ -9,12 +9,12 @@ RUN apt-get update && apt-get install -y \
     build-essential cmake \
     && rm -rf /var/lib/apt/lists/*
 
+COPY roop/requirements.txt roop/requirements.txt
+RUN pip install --no-cache-dir -r roop/requirements.txt
+
 COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
-
-COPY roop/requirements.txt roop/requirements.txt
-RUN pip install --no-cache-dir -r roop/requirements.txt
 
 COPY . .
 

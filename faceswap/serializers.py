@@ -3,8 +3,6 @@ import imghdr
 import uuid
 from django.core.files.base import ContentFile
 from rest_framework import serializers
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema_field
 from .models import Review, FaceSwapTask
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -44,17 +42,9 @@ class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
 class TemplateReplaceSerializer(serializers.Serializer):
     type = serializers.ChoiceField(choices=['male', 'female'])
     image = serializers.ImageField()
-
-    @extend_schema_field(OpenApiTypes.BINARY)
-    def get_image(self):
-        return self.initial_data.get('image')
     
 class ReportDownloadSerializer(serializers.Serializer):
     password = serializers.CharField()    
 
 class ReportUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
-    
-    @extend_schema_field(OpenApiTypes.BINARY)
-    def get_file(self):
-        return self.initial_data.get('file')
