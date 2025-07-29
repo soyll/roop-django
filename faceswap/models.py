@@ -16,10 +16,15 @@ class FaceSwapTask(models.Model):
         ('error', 'Ошибка'),
     ]
 
+    TEMPLATE_CHOICES = [
+        ('male', 'Мужской шаблон'),
+        ('female', 'Женский шаблон'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    session_id = models.CharField(max_length=100, null=True, blank=True)
+    session_id = models.CharField(max_length=100)
     user_photo = models.ImageField(upload_to='uploads/user_photos/')
-    template_id = models.CharField(max_length=100)
+    template_id = models.CharField(max_length=10, choices=TEMPLATE_CHOICES)
     result_photo = models.ImageField(upload_to='uploads/result_photos/', null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     error_message = models.TextField(blank=True, null=True)
