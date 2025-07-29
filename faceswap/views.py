@@ -12,7 +12,8 @@ from django.conf import settings
 from django.utils.timezone import now
 from django.core.files.storage import default_storage
 
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 from .models import Review, FaceSwapTask
 from .serializers import (
@@ -52,7 +53,6 @@ class FaceSwapTaskStatusView(APIView):
 
 @extend_schema(
     request=TemplateReplaceSerializer,
-    responses={200: OpenApiResponse(description="Template replaced successfully")},
 )
 class TemplateReplaceView(APIView):
     @method_decorator(csrf_exempt)
@@ -75,9 +75,14 @@ class TemplateReplaceView(APIView):
         
 @extend_schema(
     parameters=[
-        ReportDownloadSerializer().fields['password'],
+        OpenApiParameter(
+            name='password',
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            required=True,
+            description='Password to authorize CSV download'
+        ),
     ],
-    responses={200: OpenApiResponse(description="CSV file downloaded")}
 )
 class DownloadReportView(APIView):
     def get(self, request):
@@ -110,7 +115,6 @@ class DownloadReportView(APIView):
 
 @extend_schema(
     request=ReportUploadSerializer,
-    responses={200: OpenApiResponse(description="CSV file uploaded successfully")},
 )
 class UploadReportView(APIView):
     def post(self, request):
