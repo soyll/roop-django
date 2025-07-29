@@ -34,11 +34,7 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         task = serializer.save(status='pending')
-        user_photo_file = task.user_photo.open('rb')
-        user_photo_bytes = user_photo_file.read()
-        user_photo_file.close()
-
-        process_face_swap_task.delay(str(task.id), user_photo_bytes, task.template_id)
+        process_face_swap_task.delay(str(task.id))
 
 
 class FaceSwapTaskStatusView(APIView):
@@ -65,8 +61,8 @@ class TemplateReplaceView(APIView):
 
         try:
             img = Image.open(image_file)
-            os.makedirs('/app/templates/', exist_ok=True)
-            path = f'/app/templates/{template_type}.png'
+            os.makedirs('media/templates/', exist_ok=True)
+            path = f'media/templates/{template_type}.png'
             img.convert("RGB").save(path, format="PNG")
             return Response({'success': True})
         except Exception as e:
