@@ -1,10 +1,10 @@
-from rest_framework.views import exception_handler
+from rest_framework.views import exception_handler as drf_exception_handler
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
 
 def exception_handler(exc, context):
-    response = exception_handler(exc, context)
+    response = drf_exception_handler(exc, context)
 
     if isinstance(exc, ValidationError):
         error_msg = _flatten_error(exc.detail)
