@@ -34,18 +34,20 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
     queryset = FaceSwapTask.objects.all()
     serializer_class = FaceSwapTaskCreateSerializer
 
-    def create(self, request, *args, **kwargs):
-        try:
-            response = super().create(request, *args, **kwargs)
-        except ValidationError:
-            return Response({"error": ""}, status=status.HTTP_400_BAD_REQUEST)
-
-        return response
-
     def perform_create(self, serializer):
         task = serializer.save(status='pending')
         process_face_swap_task.delay(str(task.id))
         return task
+    
+    def _format_error(self, exc):
+        if isinstance(exc.detail, dict):
+            for field, errors in exc.detail.items():
+                if isinstance(errors, list) and errors:
+                    return f"{field} {errors[0]}"
+                return f"{field} {errors}"
+        elif isinstance(exc.detail, list) and exc.detail:
+            return str(exc.detail[0])
+        return "Invalid input"
 
 class FaceSwapTaskStatusView(APIView):
     def get(self, request, pk):
