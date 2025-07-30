@@ -16,18 +16,6 @@ UPSCALE_SCRIPT = "/app/gfpgan/inference_gfpgan.py"
 def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
     logging.info(f"[ROOP] Running face swap task")
     
-    if os.path.exists(source_path):
-        size_src = os.path.getsize(source_path)
-        logging.info(f"[ROOP] Source path exists: True ({source_path}), size: {size_src} bytes")
-    else:
-        logging.info(f"[ROOP] Source path exists: False ({source_path})")
-
-    if os.path.exists(target_path):
-        size_tgt = os.path.getsize(target_path)
-        logging.info(f"[ROOP] Target path exists: True ({target_path}), size: {size_tgt} bytes")
-    else:
-        logging.info(f"[ROOP] Target path exists: False ({target_path})")
-    
     os.makedirs(output_path, exist_ok=True)
     
     cmd = [
@@ -59,7 +47,7 @@ def run_upscale(input_image: str, output_dir: str) -> str:
         "python", UPSCALE_SCRIPT,
         "-i", input_image,
         "-o", output_dir,
-        "-v", "1.3"
+        "-v", "1.3",
         "-s", "4",
         "-ext", "png"
     ]
