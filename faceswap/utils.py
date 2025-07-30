@@ -15,7 +15,12 @@ UPSCALE_SCRIPT = "/app/face-sparnet/test_enhance_single_unalign.py"
 PRETRAIN_MODEL = "/app/face-sparnet/models/SPARNetHD_V4_Attn2D_net_H-epoch10.pth"
 
 def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
+    logging.info(f"[ROOP] Running face swap task")
+    logging.info(f"[ROOP] Source path exists: {os.path.exists(source_path)} ({source_path})")
+    logging.info(f"[ROOP] Target path exists: {os.path.exists(target_path)} ({target_path})")
+    
     os.makedirs(output_path, exist_ok=True)
+    
     cmd = [
         "python", ROOP_SCRIPT,
         "-s", source_path,
