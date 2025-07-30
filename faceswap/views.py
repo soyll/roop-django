@@ -110,7 +110,7 @@ class UploadReportView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         file = serializer.validated_data['file']
-        filename = f'report_upload_{now().strftime("%Y-%m-%d_%H-%M-%S")}.csv'
+        filename = f'faceswap_report_upload_{now().strftime("%Y-%m-%d_%H-%M-%S")}.csv'
         path = default_storage.save(f'reports/{filename}', file)
 
         return Response({'success': True, 'path': path})
