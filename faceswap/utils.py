@@ -16,8 +16,18 @@ PRETRAIN_MODEL = "/app/face-sparnet/models/SPARNetHD_V4_Attn2D_net_H-epoch10.pth
 
 def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
     logging.info(f"[ROOP] Running face swap task")
-    logging.info(f"[ROOP] Source path exists: {os.path.exists(source_path)} ({source_path})")
-    logging.info(f"[ROOP] Target path exists: {os.path.exists(target_path)} ({target_path})")
+    
+    if os.path.exists(source_path):
+        size_src = os.path.getsize(source_path)
+        logging.info(f"[ROOP] Source path exists: True ({source_path}), size: {size_src} bytes")
+    else:
+        logging.info(f"[ROOP] Source path exists: False ({source_path})")
+
+    if os.path.exists(target_path):
+        size_tgt = os.path.getsize(target_path)
+        logging.info(f"[ROOP] Target path exists: True ({target_path}), size: {size_tgt} bytes")
+    else:
+        logging.info(f"[ROOP] Target path exists: False ({target_path})")
     
     os.makedirs(output_path, exist_ok=True)
     
