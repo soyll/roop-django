@@ -11,8 +11,7 @@ logging.basicConfig(
 )
 
 ROOP_SCRIPT = "/app/roop/run.py"
-UPSCALE_SCRIPT = "/app/face-sparnet/test_enhance_single_unalign.py"
-PRETRAIN_MODEL = "/app/face-sparnet/models/SPARNetHD_V4_Attn2D_net_H-epoch10.pth"
+UPSCALE_SCRIPT = "/app/gfpgan/inference_gfpgan.py"
 
 def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
     logging.info(f"[ROOP] Running face swap task")
@@ -58,14 +57,11 @@ def run_upscale(input_image: str, output_dir: str) -> str:
     os.makedirs(output_dir, exist_ok=True)
     cmd = [
         "python", UPSCALE_SCRIPT,
-        "--model", "sparnethd",
-        "--name", "SPARNetHD_V4_Attn2D",
-        "--res_depth", "10",
-        "--att_name", "spar",
-        "--Gnorm", "in",
-        "--pretrain_model_path", PRETRAIN_MODEL,
-        "--test_img_path", input_image,
-        "--results_dir", output_dir
+        "-i", input_image,
+        "-o", output_dir,
+        "-v", "1.3"
+        "-s", "4",
+        "-ext", "png"
     ]
     logging.info(f"[UPSCALE] Running: {' '.join(cmd)}")
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1) as proc:
