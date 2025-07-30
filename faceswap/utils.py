@@ -49,7 +49,7 @@ def run_upscale(input_image: str, output_dir: str) -> str:
         "-o", output_dir,
         "-v", "1.3",
         "-s", "4",
-        "-ext", "png"
+        "--ext", "png"
     ]
     logging.info(f"[UPSCALE] Running: {' '.join(cmd)}")
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1) as proc:
