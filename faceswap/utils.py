@@ -59,4 +59,4 @@ def run_upscale(input_image: str, output_dir: str) -> str:
         if proc.returncode != 0:
             raise RuntimeError(f"[UPSCALE] [ERROR] Code: {proc.returncode}")
 
-    return os.path.join(output_dir, 'restored_imgs', input_image)
+    return os.path.join(output_dir, 'restored_imgs', input_image.split('/')[-1])
