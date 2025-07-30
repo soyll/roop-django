@@ -12,7 +12,7 @@ def process_face_swap_task(task_id):
 
     try:
         source = task.user_photo.path
-        template = f"/app/media/templates/{task.template_id}.png"
+        template = os.path.join('media', 'templates', f"{task.template_id}.png")
         outdir = os.path.join('media', 'faceswap_results', str(task.id))
         os.makedirs(outdir, exist_ok=True)
 
