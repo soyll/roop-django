@@ -2,10 +2,18 @@ import uuid
 from django.db import models
 
 class Review(models.Model):
+    RATING_CHOICES = [
+        ('5', '5'),
+        ('4', '4'),
+        ('3', '3'),
+        ('2', '2'),
+        ('1', '1'),
+    ]
+    
     session_id = models.CharField(max_length=100, default=0, blank=True)
     task_id = models.OneToOneField('FaceSwapTask', on_delete=models.CASCADE)
     text = models.TextField()
-    rating = models.PositiveSmallIntegerField()
+    rating = models.CharField(max_length=1, choices=RATING_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     
 class FaceSwapTask(models.Model):
