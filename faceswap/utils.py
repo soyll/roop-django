@@ -59,9 +59,4 @@ def run_upscale(input_image: str, output_dir: str) -> str:
         if proc.returncode != 0:
             raise RuntimeError(f"[UPSCALE] [ERROR] Code: {proc.returncode}")
 
-    for ext in (".jpg", ".png"):
-        file_path = Path(output_dir) / f"hq_final{ext}"
-        if file_path.exists():
-            return str(file_path)
-
-    raise RuntimeError(f"[UPSCALE] Image hq_final not found: {output_dir}")
+    return os.path.join(output_dir, 'restored_imgs', input_image)
