@@ -9,7 +9,7 @@ from .models import Review, FaceSwapTask
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ['id', 'task_id', 'session_id', 'text', 'rating', 'created_at']
+        fields = ['id', 'task_id', 'text', 'rating', 'created_at']
 
 class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
     user_photo_base64 = serializers.CharField(write_only=True, required=False)
