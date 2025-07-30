@@ -34,16 +34,6 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
     queryset = FaceSwapTask.objects.all()
     serializer_class = FaceSwapTaskCreateSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-            task = self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        except ValidationError as e:
-            return Response({"error": self._format_error(e)}, status=status.HTTP_400_BAD_REQUEST)
-
     def perform_create(self, serializer):
         task = serializer.save(status='pending')
         process_face_swap_task.delay(str(task.id))
