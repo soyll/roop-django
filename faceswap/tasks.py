@@ -4,7 +4,16 @@ from celery import shared_task
 from faceswap.utils import run_faceswap, run_upscale
 from .models import FaceSwapTask
 
-@shared_task
+@shared_task(
+    bind=True,
+    max_retries=3,
+    soft_time_limit=180,
+    time_limit=240,
+    autoretry_for=(Exception,),
+    retry_backoff=True,
+    retry_backoff_max=60,
+    retry_jitter=True
+)
 def process_face_swap_task(task_id):
     task = FaceSwapTask.objects.get(pk=task_id)
     task.status = 'processing'

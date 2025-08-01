@@ -8,7 +8,7 @@ services:
     container_name: django
     command: >
       sh -c "python manage.py migrate &&
-             gunicorn ar_tobolsk.wsgi:application --bind 0.0.0.0:8000"
+             gunicorn --timeout 180 ar_tobolsk.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: celery.Dockerfile
     container_name: celery
-    command: celery -A ar_tobolsk worker -l info -E
+    command: celery -A ar_tobolsk worker -l info -E --concurrency=1
     volumes:
       - .:/app
     depends_on:
