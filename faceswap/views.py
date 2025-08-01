@@ -49,6 +49,7 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
             return str(exc.detail[0])
         return "Invalid input"
 
+
 class FaceSwapTaskStatusView(APIView):
     def get(self, request, pk):
         try:

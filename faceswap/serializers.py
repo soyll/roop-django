@@ -19,37 +19,30 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
         model = FaceSwapTask
         fields = ['id', 'user_photo', 'user_photo_base64', 'template_id', 'session_id']
 
-    def validate(self, attrs):
-        if not attrs.get('user_photo') and not attrs.get('user_photo_base64'):
+    def validate(self, data):
+        if not data.get('user_photo') and not data.get('user_photo_base64'):
             raise serializers.ValidationError("Either 'user_photo' or 'user_photo_base64' must be provided.")
-        return super().validate(attrs)
+        return data
 
     def create(self, validated_data):
         base64_data = validated_data.pop('user_photo_base64', None)
+        
         if base64_data:
-            if not isinstance(base64_data, str):
-                raise serializers.ValidationError("Photo must be a base64 string")
-
             if ';base64,' in base64_data:
-                _, imgstr = base64_data.split(';base64,', 1)
+                _, base64_str = base64_data.split(';base64,', 1)
             else:
-                imgstr = base64_data
-
-            imgstr = imgstr.strip().replace('\n', '').replace('\r', '').replace(' ', '')
-
+                base64_str = base64_data
+            
+            base64_str = base64_str.strip()
+            
             try:
-                decoded_img = base64.b64decode(imgstr + '=' * (-len(imgstr) % 4))
-            except Exception:
-                raise serializers.ValidationError("Image base64 decode error")
-
-            try:
-                image = Image.open(BytesIO(decoded_img)).convert("RGBA")
-                image_io = BytesIO()
-                image.save(image_io, format="PNG")
-                file_name = f"{uuid.uuid4()}.png"
-                validated_data['user_photo'] = ContentFile(image_io.getvalue(), name=file_name)
+                decoded_img = base64.b64decode(base64_str + '=' * (-len(base64_str) % 4))
+                img = Image.open(BytesIO(decoded_img))
+                img_io = BytesIO()
+                img.save(img_io, format='PNG')
+                validated_data['user_photo'] = ContentFile(img_io.getvalue(), name=f"{validated_data.get('id')}.png")
             except Exception as e:
-                raise serializers.ValidationError(f"Invalid image content: {str(e)}")
+                raise serializers.ValidationError(f"Invalid image: {str(e)}")
 
         return super().create(validated_data)
 
