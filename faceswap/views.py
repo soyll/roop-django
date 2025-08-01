@@ -38,16 +38,6 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
         task = serializer.save(status='pending')
         process_face_swap_task.delay(str(task.id))
         return task
-    
-    def _format_error(self, exc):
-        if isinstance(exc.detail, dict):
-            for field, errors in exc.detail.items():
-                if isinstance(errors, list) and errors:
-                    return f"{field} {errors[0]}"
-                return f"{field} {errors}"
-        elif isinstance(exc.detail, list) and exc.detail:
-            return str(exc.detail[0])
-        return "Invalid input"
 
 
 class FaceSwapTaskStatusView(APIView):

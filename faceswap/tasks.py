@@ -5,7 +5,6 @@ from faceswap.utils import run_faceswap, run_upscale
 from .models import FaceSwapTask
 
 @shared_task(
-    bind=True,
     max_retries=3,
     soft_time_limit=180,
     time_limit=240,
