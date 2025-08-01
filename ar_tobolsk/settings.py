@@ -54,7 +54,7 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'faceswap.exceptions.exception_handler',
+#    'EXCEPTION_HANDLER': 'faceswap.exceptions.exception_handler',
 }
 
 INSTALLED_APPS = [
