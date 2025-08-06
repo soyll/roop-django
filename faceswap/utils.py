@@ -19,7 +19,7 @@ def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
     os.makedirs(output_path, exist_ok=True)
     
     cmd = [
-        "python", ROOP_SCRIPT,
+        "python3", ROOP_SCRIPT,
         "-s", source_path,
         "-t", target_path,
         "-o", output_path,
@@ -45,7 +45,7 @@ def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
 def run_upscale(input_image: str, output_dir: str) -> str:
     os.makedirs(output_dir, exist_ok=True)
     cmd = [
-        "python", UPSCALE_SCRIPT,
+        "python3", UPSCALE_SCRIPT,
         "-i", input_image,
         "-o", output_dir,
         "-v", "1.3",
