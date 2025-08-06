@@ -31,6 +31,9 @@ services:
       - django
       - redis
       - postgres
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
 
   redis:
     image: redis:7
