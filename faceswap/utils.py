@@ -23,6 +23,7 @@ def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
         "-s", source_path,
         "-t", target_path,
         "-o", output_path,
+        "--execution-provider", "cuda",
         "--frame-processor", "face_swapper"
     ]
     logging.info(f"[ROOP] Running: {' '.join(cmd)}")
