@@ -36,9 +36,16 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         task = serializer.save(status='pending')
-        process_face_swap_task.delay(str(task.id))
+        try:
+            process_face_swap_task.apply_async(
+                args=[str(task.id)],
+                expires=60
+            )
+        except Exception as e:
+            task.status = 'error'
+            task.error_message = f'Celery failed: {e}'
+            task.save()
         return task
-
 
 class FaceSwapTaskStatusView(APIView):
     def get(self, request, pk):
