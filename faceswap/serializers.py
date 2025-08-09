@@ -52,9 +52,8 @@ class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
         fields = ['id', 'status', 'result_photo', 'error_message']
 
     def get_result_photo(self, obj):
-        request = self.context.get('request')
         if obj.result_photo and hasattr(obj.result_photo, 'url'):
-            return request.build_absolute_uri(obj.result_photo.url)
+            return f"https://tobolsk.naviar.io{obj.result_photo.url}"
         return None
     
 class TemplateReplaceSerializer(serializers.Serializer):
