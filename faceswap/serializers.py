@@ -46,7 +46,14 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
 
         return super().create(validated_data)
 
+    def get_user_photo(self, obj):
+        if obj.user_photo and hasattr(obj.user_photo, 'url'):
+            return f"https://tobolsk.naviar.io{obj.user_photo.url}"
+        return None
+
 class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
+    result_photo = serializers.SerializerMethodField()
+    
     class Meta:
         model = FaceSwapTask
         fields = ['id', 'status', 'result_photo', 'error_message']
