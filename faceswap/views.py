@@ -47,6 +47,22 @@ class FaceSwapTaskCreateView(generics.CreateAPIView):
             task.save()
         return task
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        task = self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        
+        response_serializer = FaceSwapTaskCreateSerializer(
+            task, 
+            context={'request': request}
+        )
+        return Response(
+            response_serializer.data, 
+            status=status.HTTP_201_CREATED, 
+            headers=headers
+        )
+        
 class FaceSwapTaskStatusView(APIView):
     def get(self, request, pk):
         try:
