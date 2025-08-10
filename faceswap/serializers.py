@@ -18,7 +18,7 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FaceSwapTask
-        fields = ['id', 'user_photo', 'user_photo_base64', 'template_id', 'session_id']
+        fields = ['id', 'user_photo', 'user_photo_base64', 'result_photo', 'template_id', 'session_id']
         read_only_fields = ['user_photo']
 
     def validate(self, data):
