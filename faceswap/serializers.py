@@ -13,7 +13,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
     user_photo_base64 = serializers.CharField(write_only=True, required=False)
-    user_photo = serializers.SerializerMethodField(read_only=True)
+    user_photo = serializers.ImageField(write_only=True, required=False)
+    result_photo = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = FaceSwapTask
@@ -47,9 +48,9 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
 
         return super().create(validated_data)
 
-    def get_user_photo(self, obj):
-        if obj.user_photo and hasattr(obj.user_photo, 'url'):
-            return f"https://tobolsk.naviar.io{obj.user_photo.url}"
+    def get_result_photo(self, obj):
+        if obj.result_photo and hasattr(obj.result_photo, 'url'):
+            return f"https://tobolsk.naviar.io{obj.result_photo.url}"
         return None
 
 class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
