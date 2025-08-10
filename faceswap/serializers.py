@@ -14,12 +14,12 @@ class ReviewSerializer(serializers.ModelSerializer):
 class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
     user_photo_base64 = serializers.CharField(write_only=True, required=False)
     user_photo = serializers.ImageField(write_only=True, required=False)
-    result_photo = serializers.SerializerMethodField(read_only=True)
+    user_photo_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = FaceSwapTask
-        fields = ['id', 'user_photo', 'user_photo_base64', 'result_photo', 'template_id', 'session_id']
-        read_only_fields = ['user_photo']
+        fields = ['id', 'user_photo', 'user_photo_url', 'user_photo_base64', 'template_id', 'session_id']
+        read_only_fields = ['id', 'user_photo_url']
 
     def validate(self, data):
         if not data.get('user_photo') and not data.get('user_photo_base64'):
@@ -42,15 +42,18 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
                 img = Image.open(BytesIO(decoded_img))
                 img_io = BytesIO()
                 img.save(img_io, format='PNG')
-                validated_data['user_photo'] = ContentFile(img_io.getvalue(), name=f"{validated_data.get('id')}.png")
+                validated_data['user_photo'] = ContentFile(img_io.getvalue(), name=f"{uuid.uuid4()}.png")
             except Exception as e:
                 raise serializers.ValidationError(f"Invalid image: {str(e)}")
 
         return super().create(validated_data)
 
-    def get_result_photo(self, obj):
-        if obj.result_photo and hasattr(obj.result_photo, 'url'):
-            return f"https://tobolsk.naviar.io{obj.result_photo.url}"
+    def get_user_photo_url(self, obj):
+        if obj.user_photo and hasattr(obj.user_photo, 'url'):
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.user_photo.url)
+            return f"https://tobolsk.naviar.io{obj.user_photo.url}"
         return None
 
 class FaceSwapTaskStatusSerializer(serializers.ModelSerializer):
