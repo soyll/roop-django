@@ -50,9 +50,6 @@ class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
 
     def get_user_photo_url(self, obj):
         if obj.user_photo and hasattr(obj.user_photo, 'url'):
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.user_photo.url)
             return f"https://tobolsk.naviar.io{obj.user_photo.url}"
         return None
 
