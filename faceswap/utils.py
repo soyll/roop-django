@@ -49,7 +49,7 @@ def run_upscale(input_image: str, output_dir: str) -> str:
         "-i", input_image,
         "-o", output_dir,
         "-v", "1.3",
-        "-s", "4",
+        "-s", "2",
         "--ext", "png"
     ]
     logging.info(f"[UPSCALE] Running: {' '.join(cmd)}")
