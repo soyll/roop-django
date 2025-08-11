@@ -1,9 +1,9 @@
 import subprocess
 import os
 from pathlib import Path
-from PIL import Image
 import logging
 import sys
+from PIL import Image
 
 logging.basicConfig(
     level=logging.INFO,
@@ -63,9 +63,7 @@ def run_upscale(input_image: str, output_dir: str) -> str:
             raise RuntimeError(f"Upscale failed with code {proc.returncode}")
 
     upscaled_path = os.path.join(output_dir, 'restored_imgs', os.path.basename(input_image))
-    output_path = os.path.join(output_dir, f"2k_{os.path.basename(input_image)}")
-    
     with Image.open(upscaled_path) as img:
-        img.resize((2048, 2048), Image.Resampling.LANCZOS).save(output_path, "PNG")
+        img.resize((2048, 2048), Image.LANCZOS).save(upscaled_path, "PNG")
     
-    return output_path
+    return upscaled_path
