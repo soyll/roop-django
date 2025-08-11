@@ -1,6 +1,7 @@
 import subprocess
 import os
 from pathlib import Path
+from PIL import Image
 import logging
 import sys
 
@@ -44,20 +45,27 @@ def run_faceswap(source_path: str, target_path: str, output_path: str) -> str:
 
 def run_upscale(input_image: str, output_dir: str) -> str:
     os.makedirs(output_dir, exist_ok=True)
+    
     cmd = [
         "python3", UPSCALE_SCRIPT,
         "-i", input_image,
         "-o", output_dir,
         "-v", "1.3",
-        "-s", "1",
+        "-s", "2",
         "--ext", "png"
     ]
-    logging.info(f"[UPSCALE] Running: {' '.join(cmd)}")
+    
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1) as proc:
         for line in proc.stdout:
             logging.info(f"[UPSCALE] {line.strip()}")
         proc.wait()
         if proc.returncode != 0:
-            raise RuntimeError(f"[UPSCALE] [ERROR] Code: {proc.returncode}")
+            raise RuntimeError(f"Upscale failed with code {proc.returncode}")
 
-    return os.path.join(output_dir, 'restored_imgs', input_image.split('/')[-1])
+    upscaled_path = os.path.join(output_dir, 'restored_imgs', os.path.basename(input_image))
+    output_path = os.path.join(output_dir, f"2k_{os.path.basename(input_image)}")
+    
+    with Image.open(upscaled_path) as img:
+        img.resize((2048, 2048), Image.Resampling.LANCZOS).save(output_path, "PNG")
+    
+    return output_path
