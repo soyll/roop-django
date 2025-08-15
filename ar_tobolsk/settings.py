@@ -115,6 +115,9 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD'),
         'HOST': env('DB_HOST'),
         'PORT': env('DB_PORT'),
+        'OPTIONS': {
+            'options': '-c default_transaction_read_only=off'
+        }
     }
 }
 
