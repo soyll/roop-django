@@ -39,10 +39,11 @@ services:
     image: mher/flower
     container_name: flower
     command: >
-      flower --broker=redis://redis:6379/0
-             --port=5555
-             --persistent=True
-             --db=/flower/flower.db
+      python -m flower --broker=redis://redis:6379/0
+                    --port=5555
+                    --persistent=True
+                    --db=/flower/flower.db
+                    --basic_auth=admin:ar_tobolsk
     ports:
       - "5555:5555"
     volumes:
