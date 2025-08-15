@@ -38,20 +38,16 @@ services:
       - .env
     image: mher/flower
     container_name: flower
-    command: celery -A ar_tobolsk flower --port=5555 --persistent=True --db=/flower/flower.db --basic_auth=admin:ar_tobolsk
+    command: >
+      sh -c "cd /app && celery -A ar_tobolsk flower --port=5555 --persistent=True --db=/flower/flower.db --basic_auth=admin:ar_tobolsk"
     ports:
       - "5555:5555"
     volumes:
+      - .:/app
       - flower_data:/flower
     depends_on:
       - celery
       - redis
-
-  redis:
-    image: redis:7
-    container_name: redis
-    ports:
-      - "6379:6379"
 
   postgres:
     image: postgres:15
