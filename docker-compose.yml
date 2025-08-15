@@ -1,14 +1,13 @@
 services:
   django:
     env_file:
-    - .env
+      - .env
     build:
       context: .
       dockerfile: django.Dockerfile
     container_name: django
     command: >
-      sh -c "python manage.py migrate &&
-            gunicorn --workers 4 --timeout 30 --bind 0.0.0.0:8000 --access-logfile - ar_tobolsk.wsgi:application"
+      sh -c "gunicorn --workers 4 --timeout 30 --bind 0.0.0.0:8000 --access-logfile - ar_tobolsk.wsgi:application"
     volumes:
       - .:/app
     ports:
@@ -16,10 +15,11 @@ services:
     depends_on:
       - postgres
       - redis
+    restart: unless-stopped
 
   celery:
     env_file:
-    - .env
+      - .env
     build:
       context: .
       dockerfile: celery.Dockerfile
@@ -32,6 +32,24 @@ services:
       - redis
       - postgres
     restart: unless-stopped
+
+  flower:
+    env_file:
+      - .env
+    image: mher/flower
+    container_name: flower
+    command: >
+      flower --broker=redis://redis:6379/0
+             --port=5555
+             --persistent=True
+             --db=/flower/flower.db
+    ports:
+      - "5555:5555"
+    volumes:
+      - flower_data:/flower
+    depends_on:
+      - redis
+      - celery
 
   redis:
     image: redis:7
@@ -51,3 +69,4 @@ services:
 
 volumes:
   media_volume:
+  flower_data:
