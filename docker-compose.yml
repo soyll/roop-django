@@ -36,6 +36,9 @@ services:
   flower:
     env_file:
       - .env
+    build:
+      context: .
+      dockerfile: django.Dockerfile 
     image: mher/flower
     container_name: flower
     command: >
