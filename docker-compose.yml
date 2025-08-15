@@ -38,19 +38,14 @@ services:
       - .env
     image: mher/flower
     container_name: flower
-    command: >
-      python -m flower --broker=redis://redis:6379/0
-                    --port=5555
-                    --persistent=True
-                    --db=/flower/flower.db
-                    --basic_auth=admin:ar_tobolsk
+    command: celery -A ar_tobolsk flower --port=5555 --persistent=True --db=/flower/flower.db --basic_auth=admin:ar_tobolsk
     ports:
       - "5555:5555"
     volumes:
       - flower_data:/flower
     depends_on:
-      - redis
       - celery
+      - redis
 
   redis:
     image: redis:7
