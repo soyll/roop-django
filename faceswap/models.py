@@ -10,7 +10,7 @@ class Review(models.Model):
         ('1', '1'),
     ]
     
-    task_id = models.ForeignKey('FaceSwapTask', on_delete=models.CASCADE, null=True, blank=True)
+    task_id = models.OneToOneField('FaceSwapTask', on_delete=models.CASCADE, null=True, blank=True)
     text = models.TextField()
     rating = models.CharField(max_length=1, choices=RATING_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
