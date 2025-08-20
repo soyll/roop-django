@@ -10,6 +10,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'task_id', 'text', 'rating', 'created_at']
+        extra_kwargs = {
+            'task_id': {'required': False, 'allow_null': True}
+        }
 
 class FaceSwapTaskCreateSerializer(serializers.ModelSerializer):
     user_photo_base64 = serializers.CharField(write_only=True, required=False)
